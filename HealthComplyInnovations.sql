@@ -23,7 +23,7 @@ CREATE TABLE IF NOT EXISTS Medicamentos (
   idMedicamneto int NOT NULL AUTO_INCREMENT,
   nome varchar(60) NOT NULL,
   preco varchar(35) NOT NULL,
-  metodo_de_adiministracao varchar(35) NOT NULL,
+  metodo_de_administracao varchar(35) NOT NULL,
   PRIMARY KEY (idPlano)
 
   PRIMARY KEY (idPlano)
