@@ -1,0 +1,60 @@
+body {
+	background-color: #dfdfdf;
+}
+
+h1 {
+  margin-bottom: 60px;
+  margin-left: 60px;
+}
+
+.FormsBox {
+margin: auto;
+margin-top: 170px;
+width: 300px;
+background-color: #fff;
+padding: 50px;
+padding-right: 70px;
+border: 1px solid #ddd;
+border-radius: 10px;
+box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+font-family: Arial, sans-serif;
+font-weight: bold;
+}
+
+.input-field {
+	margin-bottom: 10px;
+}
+
+.input-field input {
+	width: 100%;
+	padding: 5px;
+	border: 1px solid #ccc;
+	border-radius: 5px;
+}
+
+.textarea1 {
+  padding-right: 15px;
+  border: 1px solid #ccc;
+	border-radius: 5px;
+  width: 97%;
+}
+
+.select {
+  width: 105%;
+	padding: 5px;
+	border: 1px solid #ccc;
+	border-radius: 5px;
+
+}
+.login-btn {
+width: 175px;
+margin-left:  60px;
+
+font-weight: bold;
+background-color: #1a5b79;
+color: #fff;
+padding: 10px 20px;
+border: none;
+border-radius: 5px;
+cursor: pointer;
+}
