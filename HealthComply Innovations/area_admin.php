@@ -124,6 +124,37 @@ if (isset($_POST["add_enfermeira"])) {
     }
 }
 
+// Adicionar farmacêutico
+if (isset($_POST["add_farmaceutico"])) {
+    $username_farmaceutico = $_POST["username_farmaceutico"];
+    $password_farmaceutico = $_POST["password_farmaceutico"];
+    $confirm_password_farmaceutico = $_POST["confirm_password_farmaceutico"];
+    $tipo_usuario_farmaceutico = "farmaceutico";
+    $nome_farmaceutico = $_POST["nome_farmaceutico"];
+    $email_farmaceutico = $_POST["email_farmaceutico"];
+    $telefone_farmaceutico = $_POST["telefone_farmaceutico"] ?? '';
+    $crf_farmaceutico = $_POST["crf"]; // Novo campo CRF
+
+    // Verificar se as senhas correspondem
+    if ($password_farmaceutico !== $confirm_password_farmaceutico) {
+        echo "As senhas não correspondem.";
+    } else {
+        // Adicionar usuário à tabela usuarios
+        $id_usuario = criar_usuario($username_farmaceutico, $password_farmaceutico, $tipo_usuario_farmaceutico, $nome_farmaceutico, $email_farmaceutico, $telefone_farmaceutico, $conn);
+        
+        if (is_numeric($id_usuario)) {
+            // Adicionar farmacêutico à tabela farmaceuticos
+            $query = "INSERT INTO farmaceuticos (id_usuario, nome, crf, email, telefone) VALUES (?, ?, ?, ?, ? )";
+            $stmt = $conn->prepare($query);
+            $stmt->bind_param("issss", $id_usuario, $nome_farmaceutico, $crf_farmaceutico, $email_farmaceutico, $telefone_farmaceutico);
+            $stmt->execute();
+            echo "Farmacêutico criado com sucesso!";
+        } else {
+            echo "Erro ao criar o usuário.";
+        }
+    }
+}
+
 $conn->close();
 ?>
 
@@ -167,6 +198,7 @@ $conn->close();
                 <option value="medico">Médico</option>
                 <option value="auditor">Auditor</option>
                 <option value="enfermeira">Enfermeira</option>
+                <option value="farmaceutico">Farmacêutico</option>
             </select><br><br>
 
             <div id="userDetails" class="user-details">
@@ -183,6 +215,11 @@ $conn->close();
                 <div id="enfermeiraDetails" class="user-type" style="display: none;">
                     <label for="coren">COREN:</label>
                     <input type="text" id="coren" name="coren"><br><br>
+                </div>
+
+                <div id="farmaceuticoDetails" class="user-type" style="display: none;">
+                    <label for="crf">CRF:</label>
+                    <input type="text" id="crf" name="crf"><br><br>
                 </div>
 
                 <label for="username">Nome de usuário:</label>
@@ -227,24 +264,27 @@ $conn->close();
 
         // Mostrar/ocultar campos com base no tipo de usuário selecionado
         document.getElementById('tipo_usuario').addEventListener('change', function() {
-            var tipo = this.value;
-            var userDetails = document.getElementById('userDetails');
-            userDetails.style.display = 'block'; // Exibe os detalhes do usuário
+    var tipo = this.value;
+    var userDetails = document.getElementById('userDetails');
+    userDetails.style.display = 'block'; // Exibe os detalhes do usuário
 
-            // Oculta todos os detalhes de tipo de usuário
-            document.getElementById('medicoDetails').style.display = 'none';
-            document.getElementById('auditorDetails').style.display = 'none';
-            document.getElementById('enfermeiraDetails').style.display = 'none';
+    // Oculta todos os detalhes de tipo de usuário
+    document.getElementById('medicoDetails').style.display = 'none';
+    document.getElementById('auditorDetails').style.display = 'none';
+    document.getElementById('enfermeiraDetails').style.display = 'none';
+    document.getElementById('farmaceuticoDetails').style.display = 'none'; // Oculta farmacêutico
 
-            // Exibe os campos correspondentes ao tipo de usuário selecionado
-            if (tipo === 'medico') {
-                document.getElementById('medicoDetails').style.display = 'block';
-            } else if (tipo === 'auditor') {
-                document.getElementById('auditorDetails').style.display = 'block';
-            } else if (tipo === 'enfermeira') {
-                document.getElementById('enfermeiraDetails').style.display = 'block';
-            }
-        });
+    // Exibe os campos correspondentes ao tipo de usuário selecionado
+    if (tipo === 'medico') {
+        document.getElementById('medicoDetails').style.display = 'block';
+    } else if (tipo === 'auditor') {
+        document.getElementById('auditorDetails').style.display = 'block';
+    } else if (tipo === 'enfermeira') {
+        document.getElementById('enfermeiraDetails').style.display = 'block';
+    } else if (tipo === 'farmaceutico') {
+        document.getElementById('farmaceuticoDetails').style.display = 'block'; // Exibe farmacêutico
+    }
+});
     </script>
 </body>
 </html>

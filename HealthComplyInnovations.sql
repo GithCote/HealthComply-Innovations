@@ -4,7 +4,7 @@ use db_HealthComply_Innovations_User;
   -- (Tabela Planos de saude)
 CREATE TABLE plano_de_saude (
   idPlano int NOT NULL AUTO_INCREMENT,
-  nome varchar(60) NOT NULL,
+  nome_plano varchar(60) NOT NULL,
   descricao varchar(255) NOT NULL,
   tipo varchar(20) NOT NULL,  -- (ex: "Individual", "Familiar", "Empresarial")
   valor decimal(10, 2) NOT NULL,
@@ -20,13 +20,15 @@ CREATE TABLE usuarios (
   id_usuario INT PRIMARY KEY AUTO_INCREMENT,
   username VARCHAR(50) NOT NULL,
   password VARCHAR(255) NOT NULL,
-  tipo_usuario ENUM('admin', 'medico', 'auditor') NOT NULL,
+  tipo_usuario ENUM('admin', 'medico', 'auditor', 'enfermeira') NOT NULL,
   nome VARCHAR(100) NOT NULL,
   email VARCHAR(100) NOT NULL,
   telefone VARCHAR(20) NOT NULL,
   especialidade VARCHAR(50) NULL,  -- apenas para médicos
   crm VARCHAR(20) NULL,  -- apenas para médicos
   cargo VARCHAR(50) NULL,  -- apenas para secretários
+  coren VARCHAR(20) NULL,  -- apenas para enfermeiras
+  crf VARCHAR(20) NULL, -- apenas para farmaceuticos
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
@@ -65,7 +67,7 @@ CREATE TABLE medicos (
   -- (Tabela Procedimentos)
 CREATE TABLE procedimentos (
   id_procedimento int NOT NULL AUTO_INCREMENT,
-  nome varchar(60) NOT NULL,
+  nome_procedimento varchar(60) NOT NULL,
   descricao varchar(255) NOT NULL,
   PRIMARY KEY (id_procedimento)
 );
@@ -78,16 +80,16 @@ CREATE TABLE medicamentos (
   preco decimal(10, 2) NOT NULL,
   tipo varchar(20) NOT NULL,  -- (ex: "Remédio", "Vitamina", etc.)
   forma_administracao varchar(20) NOT NULL,  -- (ex: "Oral", "Injetável", etc.)
+  quantidade int NOT NULL, 
   PRIMARY KEY (id_medicamento)
 );
 
-
-  -- (Tabela Medicamentos ultilizados nos procedimentos)
+-- (Tabela Medicamentos utilizados nos procedimentos)
 CREATE TABLE procedimentos_medicamentos (
+  id_lote INT PRIMARY KEY AUTO_INCREMENT,
   id_procedimento int NOT NULL,
   id_medicamento int NOT NULL,
   quantidade int NOT NULL,
-  id_lote INT PRIMARY KEY AUTO_INCREMENT,
   FOREIGN KEY (id_procedimento) REFERENCES procedimentos(id_procedimento),
   FOREIGN KEY (id_medicamento) REFERENCES medicamentos(id_medicamento)
 );
@@ -109,6 +111,7 @@ CREATE TABLE consulta (
   id_consulta INT AUTO_INCREMENT,
   id_paciente INT NOT NULL,
   id_medico INT NOT NULL,
+  crm INT NOT NULL,
   cpf_paciente VARCHAR(14),
   id_procedimento INT NOT NULL,
   dt_consulta DATE NOT NULL,
@@ -189,24 +192,24 @@ CREATE PROCEDURE sp_verificar_cobertura_procedimento(
 DELIMITER ;
 
 
-INSERT INTO medicamentos (nome, descricao, preco, tipo, forma_administracao)
+INSERT INTO medicamentos (nome, descricao, preco, tipo, forma_administracao, quantidade)
 VALUES
-  ('Paracetamol', 'Analgésico e antipirético', 10.99, 'Remédio', 'Oral'),
-  ('Ibuprofeno', 'Anti-inflamatório não esteroide', 15.99, 'Remédio', 'Oral'),
-  ('Amoxicilina', 'Antibiótico', 20.99, 'Remédio', 'Oral'),
-  ('Vitamina C', 'Vitamina essencial', 5.99, 'Vitamina', 'Oral'),
-  ('Omeprazol', 'Inibidor de bomba de prótons', 30.99, 'Remédio', 'Oral'),
-  ('Dipirona', 'Analgésico e antipirético', 12.99, 'Remédio', 'Oral'),
-  ('Ciprofloxacino', 'Antibiótico', 25.99, 'Remédio', 'Injetável'),
-  ('Azitromicina', 'Antibiótico', 18.99, 'Remédio', 'Oral'),
-  ('Ranitidina', 'Antagonista H2', 22.99, 'Remédio', 'Oral'),
-  ('Metformina', 'Medicamento para diabetes', 35.99, 'Remédio', 'Oral');
+  ('Paracetamol', 'Analgésico e antipirético', 10.99, 'Remédio', 'Oral',20),
+  ('Ibuprofeno', 'Anti-inflamatório não esteroide', 15.99, 'Remédio', 'Oral',20),
+  ('Amoxicilina', 'Antibiótico', 20.99, 'Remédio', 'Oral',20),
+  ('Vitamina C', 'Vitamina essencial', 5.99, 'Vitamina', 'Oral',20),
+  ('Omeprazol', 'Inibidor de bomba de prótons', 30.99, 'Remédio', 'Oral',20),
+  ('Dipirona', 'Analgésico e antipirético', 12.99, 'Remédio', 'Oral',20),
+  ('Ciprofloxacino', 'Antibiótico', 25.99, 'Remédio', 'Injetável',20),
+  ('Azitromicina', 'Antibiótico', 18.99, 'Remédio', 'Oral',20),
+  ('Ranitidina', 'Antagonista H2', 22.99, 'Remédio', 'Oral',20),
+  ('Metformina', 'Medicamento para diabetes', 35.99, 'Remédio', 'Oral',20);
 
   INSERT INTO usuarios (username, password, tipo_usuario, nome, email, telefone, especialidade, crm, cargo) VALUES
-  ('admin1', 'password123', 'admin', 'Administrador 1', 'admin1@example.com', '11987654321', NULL, NULL, NULL),
-  ('admin2', 'password123', 'admin', 'Administrador 2', 'admin2@example.com', '11987654322', NULL, NULL, NULL);
+  ('admin1', '123', 'admin', 'Administrador 1', 'admin1@example.com', '11987654321', NULL, NULL, NULL),
+  ('admin2', '123', 'admin', 'Administrador 2', 'admin2@example.com', '11987654322', NULL, NULL, NULL);
   
-  INSERT INTO plano_de_saude (nome, descricao, tipo, valor, cobertura_medicamentos, cobertura_consultas, limite_consultas, limite_medicamentos)
+  INSERT INTO plano_de_saude (nome_plano, descricao, tipo, valor, cobertura_medicamentos, cobertura_consultas, limite_consultas, limite_medicamentos)
 VALUES
   ('Plano Individual Básico', 'Plano de saúde individual com cobertura básica', 'Individual', 150.00, 1, 1, 10, 5),
   ('Plano Familiar Completo', 'Plano de saúde familiar com cobertura completa', 'Familiar', 500.00, 1, 1, 0, 0),
@@ -214,7 +217,7 @@ VALUES
   ('Plano Individual Avançado', 'Plano de saúde individual com cobertura avançada', 'Individual', 300.00, 1, 1, 20, 10),
   ('Plano Familiar Básico', 'Plano de saúde familiar com cobertura básica', 'Familiar', 300.00, 1, 1, 10, 5);
   
-  INSERT INTO procedimentos (nome, descricao)	
+  INSERT INTO procedimentos (nome_procedimento, descricao)	
 VALUES
   ('Consulta Geral', 'Consulta médica geral para avaliação de saúde'),
   ('Exame de Sangue', 'Exame de sangue para detecção de doenças'),
