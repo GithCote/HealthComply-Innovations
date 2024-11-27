@@ -43,8 +43,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["acao"]) && $_POST["aca
         exit;
     }
 
-    // Captura de crm, cpf_paciente e dt_consulta
-    $dt_consulta = $_POST['dt_consulta'];
+   
 
     // Buscar paciente existente pelo CPF
     $sql_paciente = "SELECT * FROM pacientes WHERE cpf = ?";
@@ -76,6 +75,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["acao"]) && $_POST["aca
         echo "Erro: O ID do médico não existe.";
         exit;
     }
+
+     // Captura de crm, cpf_paciente e dt_consulta
+     $dt_consulta = $_POST['dt_consulta'];
 
     // Preparar a consulta SQL para inserir a consulta no banco de dados
     $stmt = $conn->prepare("INSERT INTO consulta (crm, id_paciente, id_procedimento, dt_consulta) VALUES (?, ?, ?, ?)");
@@ -131,7 +133,7 @@ $conn->close();
                 <select id="plano_saude" name="plano_saude" required>
                     <option value="">Selecione um plano de saúde</option>
                     <?php while ($row = $result_planos->fetch_assoc()): ?>
-                        <option value="<?php echo $row['idPlano']; ?>"><?php echo $row['nome']; ?></option>
+                        <option value="<?php echo $row['idPlano']; ?>"><?php echo $row['nome_plano']; ?></option>
                     <?php endwhile; ?>
                 </select>
             </div>
@@ -140,7 +142,7 @@ $conn->close();
                 <select id="procedimento" name="procedimento" required>
                     <option value="">Selecione um procedimento</option>
                     <?php while ($row = $result_procedimentos->fetch_assoc()): ?>
-                        <option value="<?php echo $row['id_procedimento']; ?>"><?php echo $row['nome']; ?></option>
+                        <option value="<?php echo $row['id_procedimento']; ?>"><?php echo $row['nome_procedimento']; ?></option>
                     <?php endwhile; ?>
                 </select>
             </div>

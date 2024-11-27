@@ -27,7 +27,7 @@ function verifyLogin($conn, $username, $password) {
 }
 
 // Verificar se o formulário de login foi submetido
-if (isset($_POST["username"]) && isset($_POST["password"])) {
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["username"]) && isset($_POST["password"])) {
     $username = $_POST["username"];
     $password = $_POST["password"];
 
@@ -41,20 +41,6 @@ if (isset($_POST["username"]) && isset($_POST["password"])) {
         $_SESSION["tipo_usuario"] = $usuario["tipo_usuario"];
         $_SESSION["id_usuario"] = $usuario["id_usuario"]; // Armazena o ID do usuário
 
-        // Se o usuário for médico, armazena o CRM
-        if ($usuario["tipo_usuario"] == "medico") {
-            // Buscar CRM do médico
-            $stmt = $conn->prepare("SELECT crm FROM medicos WHERE id_usuario = ?");
-            $stmt->bind_param("i", $usuario["id_usuario"]);
-            $stmt->execute();
-            $result = $stmt->get_result();
-
-            if ($result->num_rows > 0) {
-                $medico = $result->fetch_assoc();
-                $_SESSION["crm"] = $medico["crm"]; // Armazena o CRM na sessão
-            }
-        }
-
         // Redirecionar para a área correspondente
         if ($usuario["tipo_usuario"] == "medico") {
             header("Location: crud_medico.php", true, 302);
@@ -65,6 +51,9 @@ if (isset($_POST["username"]) && isset($_POST["password"])) {
         } elseif ($usuario["tipo_usuario"] == "auditor") {
             header("Location: conferencia_procedimentos.php", true, 302);
             exit;
+        } elseif ($usuario["tipo_usuario"] == "enfermeira") {
+            header("Location: enfermeira.php", true, 302);
+            exit;
         }
     } else {
         $erro = "Usuário ou senha inválidos";
@@ -73,64 +62,49 @@ if (isset($_POST["username"]) && isset($_POST["password"])) {
 ?>
 
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Login Page</title>
-    <link rel="stylesheet" type="text/css" href="Login.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Form</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="login2.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <style>
-        .input-field {
-            position: relative;
-        }
-        .input-field button {
-            position: absolute;
-            top: 50%;
-            right: -14px;
-            transform: translateY(-50%);
-            background-color: transparent;
-            border: none;
-            cursor: pointer;
-            margin-top: 10px;
+        body {
+            background-image: url('bg-img.jpg');
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            background-size: cover;
         }
     </style>
 </head>
 <body>
-    <div class="login-form">
-        <h2>Login</h2>
-        <form action="<?php echo $_SERVER["PHP_SELF"]; ?>" method="post">
-            <div class="input-field">
-                <label for="username">Username:</label>
-                <input type="text" id="username" name="username" required>
+    <div class="login-container">
+        <div class="login-header">
+            <img src="Logo.png" alt="logo" class="logo">
+            <h2>Bem-vindo</h2>
+        </div>
+        <form class="login-form" action="<?php echo $_SERVER['PHP_SELF']; ?>" method="post">
+            <div class="input-group">
+                <label for="username">
+                    <i class="fas fa-user"></i>
+                </label>
+                <input type="text" id="username" name="username" placeholder="Usuário" required>
             </div>
-            <div class="input-field">
-                <label for="password">Password:</label>
-                <input type="password" id="password" name="password" required>
-                <button type="button" onclick="mostrarSenha()">
-                    <i class="fas fa-eye-slash" id="olho"></i>
-                </button>
+            <div class="input-group">
+                <label for="password">
+                    <i class="fas fa-lock"></i>
+                </label>
+                <input type="password" id="password" name="password" placeholder="Senha" required>
             </div>
-            <input type="submit" value="Login" class="login-btn">
+            <div class="remember-group">
+                <input type="checkbox" id="remember-me">
+                <label for="remember-me">Lembrar login</label>
+            </div>
+            <button type="submit">Entrar</button>
         </form>
-        <?php if (isset($erro)) { echo "<span style='color: red;'>$erro</span>"; } ?>
+        <?php if (isset($erro)) { echo "<span style='color: red ;'>$erro</span>"; } ?>
     </div>
-
-    <script>
-        function mostrarSenha() {
-            var senha = document.getElementById("password");
-            var olho = document.getElementById("olho");
-            if (senha.type === "password") {
-                senha.type = "text";
-                olho.className = "fas fa-eye";
-            } else {
-                senha.type = "password";
-                olho.className = "fas fa-eye-slash";
-            }
-        }
-    </script>
 </body>
 </html>
-
-<?php
-// Fechar conexão com o banco de dados
-$conn->close();
-?>
