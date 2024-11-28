@@ -172,8 +172,13 @@ VALUES
   ('Metformina', 'Medicamento para diabetes', 35.99, 'Remédio', 'Oral',20);
 
   INSERT INTO usuarios (username, password, tipo_usuario, nome, email, telefone, especialidade, crm, cargo) VALUES
-  ('admin1', '123', 'admin', 'Administrador 1', 'admin1@example.com', '11987654321', NULL, NULL, NULL),
-  ('admin2', '123', 'admin', 'Administrador 2', 'admin2@example.com', '11987654322', NULL, NULL, NULL);
+  ('admin1', '123', 'admin', 'Administrador 1', 'admin1@examplo.com', '31987654321', NULL, NULL, NULL),
+  ('admin2', '123', 'admin', 'Administrador 2', 'admin2@examplo.com', '31987654322', NULL, NULL, NULL);
+  ('auditor1', '123', 'auditor', 'auditor', 'exemplo1@auditor.com', '319983030303', NULL, NULL, NULL);
+  ('enfermeira1', '123', 'enfermeira', 'enfermeira', 'exemplo1@enfermeira.com', '319983030203', NULL, NULL, NULL);
+  ('farmaceutico1', '123', 'farmaceutico', 'farmaceutico', 'exemplo1@farmaceutico.com', '319983020203', NULL, NULL, NULL);
+
+
   
   INSERT INTO plano_de_saude (nome_plano, descricao, tipo, valor, cobertura_medicamentos, cobertura_consultas, limite_consultas, limite_medicamentos)
 VALUES
