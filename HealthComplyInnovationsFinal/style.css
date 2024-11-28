@@ -1,0 +1,144 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600&family=Josefin+Slab:ital,wght@1,700&display=swap');
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type=number] {
+  -moz-appearance: textfield;
+}
+
+* {
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+  font-family: "Inter", "sans-serif";
+  outline: none;
+  border: none;
+  
+}
+
+a {
+  text-decoration: none;
+  color: black;
+}
+
+.tituloInputCadastrar {
+  font-size: 16px;
+  font-weight: 300;
+}
+
+.inputCadastrar {
+  border-radius: 10px;
+  background-color: rgba(255, 255, 255, 0);
+  border: 1.5px solid rgb(0, 0, 0);
+  height: 30px;
+  width: 100%;
+}
+
+.inputCadastrar input:focus {
+  border: 1.5px solid #5BC2E7;
+}
+
+.divInput {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.divInput h3 {
+  font-size: 16px;
+  font-weight: 400;
+  margin-bottom: 5px;
+}
+
+.divInput input {
+  border: 1px solid black;
+  color: rgb(0, 0, 0);
+  padding: 3px 10px;
+}
+
+.divInput select {
+  color: rgb(0, 0, 0);
+}
+
+.divInput select option {
+  color: black;
+}
+
+.containerSenha input {
+  padding: 3px 10px;
+}
+
+.senha {
+  width: 100%;
+  color: black;
+  border: 1px solid black;
+}
+
+.containerSenha {
+  width: 80%;
+}
+
+.containerSenha h3 {
+  font-size: 16px;
+  font-weight: 400;
+  margin-bottom: 10px;
+}
+
+.containerSenha input {
+  margin-bottom: 10px;
+
+}
+
+.btnCadastrar {
+  width: 80%;
+  display: flex;
+  flex-direction: column;
+  margin: 10px 0 5px 0;
+}
+
+.btnCadastrar input {
+  color: white;
+  width: 100%;
+  padding: 8px 0;
+  border-radius: 10px;
+  background-color:rgb(14, 92, 7);
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.btnCadastrar input:hover {
+  box-shadow: 0px 0px 20px rgba(255, 255, 255, 0.35);
+}
+
+.btnCadastrar a {
+  color: white;
+}
+
+.btnCadastrar div {
+  display: flex;
+  justify-content: space-between;
+}
+
+.designCadastrar {
+  width: 50vw;
+  height: 160vh;
+  background-color: #5BC2E7;
+  position: absolute;
+  right: -6vw;
+  top: -10vh;
+  transform: rotate(20deg);
+  z-index: -1;
+}
+
+.cadastrarImg{
+  width: 42vw;
+  position: absolute;
+  left:60vw;
+  top: 7vh;
+}

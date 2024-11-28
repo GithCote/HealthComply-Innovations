@@ -1,0 +1,104 @@
+:root {
+    --green-hospital: #34C759; /* Cor verde hospitalar */
+    --white: #FFFFFF;
+    --gray: #F7F7F7;
+    --dark-gray: #333333;
+}
+
+/* Estilo global */
+body {
+    font-family: Arial, sans-serif;
+    background-color: var(--gray);
+}
+
+h1{
+    margin-left: 600px;
+    margin-top: 50px;
+    margin-bottom: 30px;
+    color: #2e7d32;
+}
+
+.FormsBox-container {
+    margin-top: 30px;
+    margin-left: 450px;
+    margin-bottom: 30px;
+    display: grid;
+    grid-template-columns: 450px 450px;
+    column-gap: 35px;
+    row-gap: 35px;
+}
+
+.FormsBox {
+    background-color: var(--white);
+    padding: 20px;
+    margin-top: 20px;
+    border: 1px solid var(--gray);
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    width: 450px; 
+}
+
+.FormsBox h2 {
+    color: #2e7d32;
+    margin-bottom: 10px;
+    margin-top: 10px;
+}
+
+label {
+    display: block;
+    margin-bottom: 10px;
+}
+
+input[type="text"], input[type="password"], input[type="email"], input[type="tel"] {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 20px;
+    border: 1px solid black;
+    border-radius: 10px;
+}
+
+input[type="submit"] {
+    background-color: var(--green-hospital);
+    color: var(--white);
+    padding: 10px 20px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+input[type="submit"]:hover {
+    background-color: var(--dark-gray);
+}
+
+.back-button {
+    position: fixed; /* Fixa o botão na tela */
+    bottom: 20px; /* Distância do fundo */
+    left: 20px; /* Distância da esquerda */
+    text-align: center;
+}
+
+.back-button a {
+    background-color: #4caf50; /* Verde para combinar com o tema */
+    color: white;
+    padding: 10px 20px;
+    border-radius: 4px;
+    text-decoration: none;
+    transition: background-color 0.3s; /* Efeito de transição suave */
+}
+
+.back-button a:hover {
+    background-color: #45a049; /* Verde mais escuro ao passar o mouse */
+}
+
+.login-btn {
+    background-color: var(--green-hospital);
+    color: var(--white);
+    padding: 10px 20px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+.login-btn:hover {
+    background-color: var(--dark-gray);
+}

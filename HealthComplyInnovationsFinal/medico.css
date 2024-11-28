@@ -1,0 +1,138 @@
+/* admin.css */
+
+.cadastrarImg{
+    width: 53vw;
+    position: absolute;
+    left:55vw;
+    top: -0.2vh;
+  }
+.container {
+    width: 80%; /* Ajuste a largura da div container para 80% da largura da tela */
+    max-width: 600px; /* Define uma largura máxima para a div */
+    margin-right: 0; /* Garante que a margem direita seja automática para centralizar */
+    padding: 20px; /* Adiciona algum padding interno */
+    background-color: #fcfcfc; /* Cor de fundo para a div, se necessário */
+    border-radius: 8px; /* Bordas arredondadas para a div */
+}
+
+/* O restante do seu CSS permanece o mesmo */
+.back-button {
+    position: fixed; /* Fixa o botão na tela */
+    bottom: 20px; /* Distância do fundo */
+    left: 20px; /* Distância da esquerda */
+    text-align: center;
+    align-self: center;
+}
+
+.back-button a {
+    background-color: #4caf50; /* Verde para combinar com o tema */
+    color: white;
+    padding: 10px 20px;
+    border-radius: 4px;
+    text-decoration: none;
+    transition: background-color 0.3s; /* Efeito de transição suave */
+}
+
+.back-button a:hover {
+    background-color: #45a049; /* Verde mais escuro ao passar o mouse */
+}
+
+/* Reset básico */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: #ffffff; /* Cor de fundo suave verde claro */
+    color: #333; /* Cor do texto */
+    line-height: 1.6;
+}
+
+h1, h2 {
+    color: #2e7d32; /* Verde escuro para títulos */
+    margin-bottom: 20px;
+    text-align: left; /* Alinha o texto à esquerda */
+}
+
+h1 {
+    margin-top: 20px; /* Mantém a margem superior */
+}
+
+h2 {
+    border-bottom: 2px solid #2e7d32; /* Linha abaixo do título */
+    padding-bottom: 10px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+}
+
+th, td {
+    padding: 10px;
+    text-align: left;
+    border: 1px solid #ddd; /* Borda leve */
+}
+
+th {
+    background-color: #4caf50; /* Verde para cabeçalho da tabela */
+    color: white; /* Texto branco no cabeçalho */
+}
+
+tr:nth-child(even) {
+    background-color: #f2f2f2; /* Cor de fundo alternada para linhas */
+}
+
+tr:hover {
+    background-color: #dcedc8; /* Cor de fundo ao passar o mouse */
+}
+
+button {
+    background-color: #4caf50; /* Verde para botões */
+    color: white;
+    border: none;
+    padding: 10px 15px; /* Ajuste o padding para maior */
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+button:hover {
+    background-color: #388e3c; /* Verde mais escuro ao passar o mouse */
+}
+
+/* Ajuste nos inputs */
+input[type="text"], input[type="date"], select {
+    width: calc(90% - 20px); /* Diminui a largura para 90% do contêiner */
+    padding: 7px; /* Reduzir o padding para ocupar menos espaço */
+    margin: 3px 0px 5px 0; /* Distância do lado esquerdo e margem inferior */
+    border: 1px solid #ccc; /* Borda leve */
+    border-radius: 4px; /* Bordas arredondadas */
+}
+
+/* Aumentar o botão de adicionar consulta */
+input[type="submit"] {
+    background-color: #4caf50; /* Verde para o botão de enviar */
+    color: white;
+    border: none;
+    padding: 12px 20px; /* Aumentar o padding para maior */
+    cursor: pointer;
+    transition: background-color 0.3s;
+    width: 100%; /* Fazer o botão ocupar toda a largura disponível */
+}
+
+input[type="submit"]:hover {
+    background-color: #388e3c; /* Verde mais escuro ao passar o mouse */
+}
+
+.message {
+    background-color: #d4edda; /* Verde claro para mensagens de sucesso */
+    color: #155724; /* Texto verde escuro */
+    padding: 10px;
+    margin: 20px 0;
+    border: 1px solid #c3e6cb; /* Borda verde clara */
+    border-radius: 4px; /* Bordas arredondadas */
+}

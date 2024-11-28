@@ -1,0 +1,118 @@
+/* Reset básico */
+
+.back-button {
+    position: fixed; /* Fixa o botão na tela */
+    bottom: 20px; /* Distância do fundo */
+    left: 20px; /* Distância da esquerda */
+    text-align: center;
+}
+
+.back-button a {
+    background-color: #4caf50; /* Verde para combinar com o tema */
+    color: white;
+    padding: 10px 20px;
+    border-radius: 4px;
+    text-decoration: none;
+    transition: background-color 0.3s; /* Efeito de transição suave */
+}
+
+.back-button a:hover {
+    background-color: #45a049; /* Verde mais escuro ao passar o mouse */
+}
+
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f7f9; /* Cor de fundo suave */
+    color: #333; /* Cor do texto */
+    line-height: 1.6;
+}
+
+h1, h2 {
+    color: #098137; /* Azul escuro para títulos */
+    margin-bottom: 20px;
+}
+
+h1 {
+    text-align: center;
+    margin-top: 20px;
+}
+
+h2 {
+    border-bottom: 2px solid #0b6b23; /* Linha abaixo do título */
+    padding-bottom: 10px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+}
+
+th, td {
+    padding: 10px;
+    text-align: left;
+    border: 1px solid #ddd; /* Borda leve */
+}
+
+th {
+    background-color: #0c5f25; /* Azul para cabeçalho da tabela */
+    color: white; /* Texto branco no cabeçalho */
+}
+
+tr:nth-child(even) {
+    background-color: #f2f2f2; /* Cor de fundo alternada para linhas */
+}
+
+tr:hover {
+    background-color: #e9ecef; /* Cor de fundo ao passar o mouse */
+}
+
+button {
+    background-color: #28a745; /* Verde para botões */
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+button:hover {
+    background-color: #218838; /* Verde mais escuro ao passar o mouse */
+}
+
+input[type="text"], input[type="date"], select {
+    width: 100%;
+    padding: 10px;
+    margin: 5px 0 20px 0;
+    border: 1px solid #ccc; /* Borda leve */
+    border-radius: 4px; /* Bordas arredondadas */
+}
+
+input[type="submit"] {
+    background-color: #007bff; /* Azul para o botão de enviar */
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+input[type="submit"]:hover {
+    background-color: #00b327; /* Azul mais escuro ao passar o mouse */
+}
+
+.message {
+    background-color: #d4edda; /* Verde claro para mensagens de sucesso */
+    color: #155724; /* Texto verde escuro */
+    padding: 10px;
+    margin: 20px 0;
+    border: 1px solid #c3e6cb; /* Borda verde clara */
+    border-radius: 4px; /* Bordas arredondadas */
+}
