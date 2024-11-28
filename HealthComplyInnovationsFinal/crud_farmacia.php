@@ -1,29 +1,28 @@
 <?php
-// Conexão com o banco de dados
 $conn = new mysqli("localhost", "root", "", "db_HealthComply_Innovations_User");
 
-// Verificar se a conexão foi estabelecida
+a
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
-session_start(); // Inicia a sessão
+session_start(); 
 
-// Verifique se o usuário está logado e se é um farmacêutico
+// Verifique se o usuário e um farmacêutico
 if (!isset($_SESSION["id_usuario"]) || $_SESSION["tipo_usuario"] != "farmaceutico") {
     echo "Erro: Você não está logado como farmacêutico.";
     exit;
 }
 
-// Variáveis para armazenar resultados da busca
+
 $consultas = [];
 $mensagem = '';
 
-// Processar a busca
+
 if (isset($_POST['buscar'])) {
     $crm = $_POST['crm'] ?? '';
     $nome_paciente = $_POST['nome_paciente'] ?? '';
 
-    // Montar a consulta SQL
+   
     $query = "SELECT c.id_consulta, p.nome AS nome_paciente, m.crm, pr.nome_procedimento, 
                      cm.quantidade AS quantidade_receitada, 
                      rm.remedio_saida, rm.remedio_volta, med.nome AS nome_medicamento
@@ -47,13 +46,13 @@ if (isset($_POST['buscar'])) {
     }
 }
 
-// Processar a atualização do status do medicamento
+// Parte que fiquei agarrado feita para falar se o remedio saiu ou foi devolvido
 if (isset($_POST['atualizar'])) {
     $id_consulta = $_POST['id_consulta'];
-    $saida_remedio = $_POST['saida_remedio'] ?? 0; // Pega a quantidade de saída
-    $devolucao_remedio = $_POST['devolucao_remedio'] ?? 0; // Pega a quantidade devolvida
+    $saida_remedio = $_POST['saida_remedio'] ?? 0; 
+    $devolucao_remedio = $_POST['devolucao_remedio'] ?? 0; 
 
-    // Inserir o registro na tabela registro_medicamentos
+    
     $query = "INSERT INTO registro_medicamentos (id_consulta, remedio_saida, remedio_volta) 
               VALUES (?, ?, ?)";
     $stmt = $conn->prepare($query);
@@ -66,7 +65,7 @@ if (isset($_POST['atualizar'])) {
     }
 }
 ?>
-
+//==========================================================Aqui acaba a parte logica tome cuidado com as partes de php no html ================================================================================================
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
