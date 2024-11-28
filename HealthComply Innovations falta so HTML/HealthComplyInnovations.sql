@@ -100,6 +100,8 @@ CREATE TABLE registro_medicamentos (
     id_consulta INT NOT NULL,
     remedio_dado TINYINT(1) DEFAULT 0,
     remedio_devolvido TINYINT(1) DEFAULT 0,
+    remedio_saida TINYINT(1) DEFAULT 0,
+    remedio_volta TINYINT(1) DEFAULT 0,
     data_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (id_consulta) REFERENCES consulta(id_consulta)
 );
@@ -127,6 +129,32 @@ CREATE TABLE consulta_medicamentos (
     quantidade INT NOT NULL,
     FOREIGN KEY (id_consulta) REFERENCES consulta(id_consulta),
     FOREIGN KEY (id_medicamento) REFERENCES medicamentos(id_medicamento)
+);
+
+CREATE TABLE avisos (
+    id_aviso INT AUTO_INCREMENT PRIMARY KEY,
+    id_consulta INT,
+    nome_paciente VARCHAR(255),
+    crm_medico VARCHAR(20),
+    nome_medicamento VARCHAR(255),
+    quantidade_receitada INT,
+    remedio_dado INT,
+    remedio_devolvido INT,
+    saida_remedio INT,
+    devolucao_remedio INT,
+    data_aviso TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (id_consulta) REFERENCES consulta(id_consulta)
+);
+
+CREATE TABLE consultas_verificadas (
+    id_verificacao INT AUTO_INCREMENT PRIMARY KEY,
+    id_consulta INT,
+    remedio_dado INT,
+    remedio_saida INT,
+    remedio_devolvido INT,
+    remedio_volta INT,
+    data_verificacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (id_consulta) REFERENCES consulta(id_consulta)
 );
 
 INSERT INTO medicamentos (nome, descricao, preco, tipo, forma_administracao, quantidade)
@@ -183,3 +211,6 @@ VALUES
   select * from pacientes;
   select * from consulta;
   
+  DESCRIBE consulta;
+ 
+ ALTER TABLE registro_medicamentos ADD  remedio_volta TINYINT(1) DEFAULT 0;
