@@ -1,26 +1,20 @@
 <?php
 // Conexão com o banco de dados
 $conn = new mysqli("localhost", "root", "", "db_HealthComply_Innovations_User");
-
 // Verificar se a conexão foi estabelecida
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
-
 session_start(); // Inicia a sessão
-
 // Verifique se o usuário está logado
 if (!isset($_SESSION["id_usuario"])) {
     echo "Erro: Você não está logado como administrador.";
     exit;
 }
-
 // Verifique se o ID do administrador está definido
 $admin_id = isset($_SESSION["admin_id"]) ? $_SESSION["admin_id"] : 'ID não disponível';
-
 // Obter o ID do usuário da sessão
 $id_usuario = $_SESSION["id_usuario"];
-
 // Função para verificar se o usuário já existe
 function usuario_ja_existe($username, $conn) {
     $query = "SELECT * FROM usuarios WHERE username = ?";
@@ -30,7 +24,6 @@ function usuario_ja_existe($username, $conn) {
     $result = $stmt->get_result();
     return $result->num_rows > 0;
 }
-
 // Função para criar um novo usuário
 function criar_usuario($username, $password, $tipo_usuario, $nome, $email, $telefone, $conn) {
     if (usuario_ja_existe($username, $conn)) {
@@ -43,7 +36,6 @@ function criar_usuario($username, $password, $tipo_usuario, $nome, $email, $tele
     $stmt->close();
     return $conn->insert_id; // Retorna o ID do usuário recém-criado
 }
-
 // Adicionar médico
 if (isset($_POST["add_medico"])) {
     $username_medico = $_POST["username_medico"];
@@ -55,7 +47,6 @@ if (isset($_POST["add_medico"])) {
     $telefone_medico = $_POST["telefone_medico"] ?? '';
     $especialidade_medico = $_POST["especialidade_medico"];
     $crm_medico = $_POST["crm_medico"];
-
     // Verificar se as senhas correspondem
     if ($password_medico !== $confirm_password_medico) {
         echo "As senhas não correspondem.";
@@ -78,7 +69,6 @@ if (isset($_POST["add_medico"])) {
         echo "Por favor, preencha o campo telefone.";
     }
 }
-
 // Adicionar auditor
 if (isset($_POST["add_auditor"])) {
     $username_auditor = $_POST["username_auditor"];
@@ -90,7 +80,6 @@ if (isset($_POST["add_auditor"])) {
     $telefone_auditor = $_POST["telefone_auditor"] ?? '';
     $especialidade_auditor = $_POST["especialidade_auditor"];
     $crm_auditor = $_POST["crm_auditor"];
-
     // Verificar se as senhas correspondem
     if ($password_auditor !== $confirm_password_auditor) {
         echo "As senhas não correspondem.";
@@ -108,7 +97,6 @@ if (isset($_POST["add_enfermeira"])) {
     $nome_enfermeira = $_POST["nome_enfermeira"];
     $email_enfermeira = $_POST["email_enfermeira"];
     $telefone_enfermeira = $_POST["telefone_enfermeira"];
-
     // Verificar se as senhas correspondem
     if ($password_enfermeira !== $confirm_password_enfermeira) {
         echo "As senhas não correspondem.";
@@ -124,7 +112,7 @@ if (isset($_POST["add_enfermeira"])) {
     }
 }
 
-// Adicionar farmacêutico
+// Adicionar farmaceutico
 if (isset($_POST["add_farmaceutico"])) {
     $username_farmaceutico = $_POST["username_farmaceutico"];
     $password_farmaceutico = $_POST["password_farmaceutico"];
@@ -132,9 +120,7 @@ if (isset($_POST["add_farmaceutico"])) {
     $tipo_usuario_farmaceutico = "farmaceutico";
     $nome_farmaceutico = $_POST["nome_farmaceutico"];
     $email_farmaceutico = $_POST["email_farmaceutico"];
-    $telefone_farmaceutico = $_POST["telefone_farmaceutico"] ?? '';
-    $crf_farmaceutico = $_POST["crf"]; // Novo campo CRF
-
+    $telefone_farmaceutico = $_POST["telefone_farmaceutico"];
     // Verificar se as senhas correspondem
     if ($password_farmaceutico !== $confirm_password_farmaceutico) {
         echo "As senhas não correspondem.";
@@ -143,148 +129,164 @@ if (isset($_POST["add_farmaceutico"])) {
         $id_usuario = criar_usuario($username_farmaceutico, $password_farmaceutico, $tipo_usuario_farmaceutico, $nome_farmaceutico, $email_farmaceutico, $telefone_farmaceutico, $conn);
         
         if (is_numeric($id_usuario)) {
-            // Adicionar farmacêutico à tabela farmaceuticos
-            $query = "INSERT INTO farmaceuticos (id_usuario, nome, crf, email, telefone) VALUES (?, ?, ?, ?, ? )";
-            $stmt = $conn->prepare($query);
-            $stmt->bind_param("issss", $id_usuario, $nome_farmaceutico, $crf_farmaceutico, $email_farmaceutico, $telefone_farmaceutico);
-            $stmt->execute();
-            echo "Farmacêutico criado com sucesso!";
+            echo "farmaceutico adicionada com sucesso!";
         } else {
-            echo "Erro ao criar o usuário.";
+            echo $id_usuario; // Mensagem de erro se o usuário já existe
         }
     }
 }
-
 $conn->close();
 ?>
-
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Adicionar Usuário</title>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="login2.css">
-    <style>
-        body {
-            background-color: green; /* Altera a cor de fundo para verde */
-            color: white; /* Altera a cor do texto para branco para melhor contraste */
-            display: flex; /* Usando flexbox para centralizar */
-            justify-content: center; /* Centraliza horizontalmente */
-            align-items: center; /* Centraliza verticalmente */
-            height: 100vh; /* Ocupa toda a altura da janela */
-            text-align: center; /* Centraliza o texto dentro do contêiner */
-        }
-        .FormsBox {
-            background-color: rgba(255, 255, 255, 0.8); /* Fundo branco semitransparente */
-            border-radius: 8px;
-            padding: 40px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-            width: 400px; /* Largura do formulário */
-        }
-        .user-details {
-            display: none; /* Oculta inicialmente */
-        }
-    </style>
+    <link rel="stylesheet" href="admin.css">
+    <title>Área do Administrador</title>
 </head>
 <body>
-    <div class="FormsBox">
-        <form action="" method="post" id="userForm">
-            <h2>Adicionar Usuário</h2>
-            <label for="tipo_usuario">Tipo de Usuário:</label>
-            <select id="tipo_usuario" name="tipo_usuario" required>
-                <option value="">Selecione um tipo de usuário</option>
-                <option value="medico">Médico</option>
-                <option value="auditor">Auditor</option>
-                <option value="enfermeira">Enfermeira</option>
-                <option value="farmaceutico">Farmacêutico</option>
-            </select><br><br>
-
-            <div id="userDetails" class="user-details">
-                <div id="medicoDetails" class="user-type" style="display: none;">
-                    <label for="crm">CRM:</label>
-                    <input type="text" id="crm" name="crm"><br><br>
-                </div>
-
-                <div id="auditorDetails" class="user-type" style="display: none;">
-                    <label for="area_auditoria">Área de Auditoria:</label>
-                    <input type="text" id="area_auditoria" name="area_auditoria"><br><br>
-                </div>
-
-                <div id="enfermeiraDetails" class="user-type" style="display: none;">
-                    <label for="coren">COREN:</label>
-                    <input type="text" id="coren" name="coren"><br><br>
-                </div>
-
-                <div id="farmaceuticoDetails" class="user-type" style="display: none;">
-                    <label for="crf">CRF:</label>
-                    <input type="text" id="crf" name="crf"><br><br>
-                </div>
-
-                <label for="username">Nome de usuário:</label>
-                <input type="text" id="username" name="username" required><br><br>
-
-                <label for="password">Senha:</label>
-                <input type="password" id="password" name="password" required><br><br>
-
-                <label for="confirm_password">Confirme a Senha:</label>
-                <input type="password" id="confirm_password" name="confirm_password" required><br><br>
-                <span id="senha_mensagem" style="color: red;"></span> <!-- Mensagem de verificação -->
-
-                <label for="nome">Nome Completo:</label>
-                <input type="text" id="nome" name="nome" required><br><br>
-
-                <label for="email">Email:</label>
-                <input type="email" id="email" name="email" required><br><br>
-
-                <label for="telefone">Telefone:</label>
-                <input type="tel" id="telefone" name="telefone" required><br><br>
-            </div>
-
-            <input type="submit" name="add_usuario" class="login-btn" value="Adicionar Usuário">
-        </form>
+<h1>Bem-vindo à Área do Administrador</h1>
+<p>ID do Usuário Conectado: <?php echo htmlspecialchars($admin_id); ?></p>
+    <h1>Adicionar Médico ou Auditor</h1>
+    <div class="FormsBox-container">
+        <div class="FormsBox">
+            <form action="" method="post">
+                <h2>Adicionar Médico</h2>
+                <label for="username_medico">Nome de usuario do Médico:</label>
+                <input type="text" id="username_medico" name="username_medico" required><br><br>
+                <label for="password_medico">Senha do Médico:</label>
+                <input type="password" id="password_medico" name="password_medico" required><br><br>
+                <label for="confirm_password_medico">Confirme a Senha:</label>
+                <input type="password" id="confirm_password_medico" name="confirm_password_medico" required><br><br>
+                <label for="nome_medico">Nome do Médico:</label>
+                <input type="text" id="nome_medico" name="nome_medico" required><br><br>
+                <label for="email_medico">Email do Médico:</label>
+                <input type="email" id="email_medico" name="email_medico" required><br><br>
+                <label for="telefone_medico">Telefone do Médico:</label>
+                <input type="tel" id="telefone_medico" name="telefone_medico" required><br><br>
+                <label for="especialidade_medico">Especialidade do Médico:</label>
+                <input type="text" id="especialidade_medico" name="especialidade_medico" required><br><br>
+                <label for="crm_medico">CRM do Médico:</label>
+                <input type="text" id="crm_medico" name="crm_medico" required><br><br>
+                <input type="submit" name="add_medico" class="login-btn" value="Adicionar Médico">
+            </form>
+        </div>
+        <div class="FormsBox">
+            <form action="" method="post">
+                <h2>Adicionar Auditor</h2>
+                <label for="username_auditor">Nome de usuario do Auditor:</label>
+                <input type="text" id="username_auditor" name="username_auditor" required><br><br>
+                <label for="password_auditor">Senha do Auditor:</label>
+                <input type="password" id="password_auditor" name="password_auditor" required><br><br>
+                <label for="confirm_password_auditor">Confirme a Senha:</label>
+                <input type="password" id="confirm_password_auditor" name="confirm_password_auditor" required><br><br>
+                <label for="nome_auditor">Nome do Auditor:</label>
+                <input type="text" id="nome_auditor" name="nome_auditor" required><br><br>
+                <label for="email_auditor">Email do Auditor:</label>
+                <input type="email" id="email_auditor" name="email_auditor" required><br><br>
+                <label for="telefone_auditor">Telefone do Auditor:</label>
+                <input type="tel" id="telefone_auditor" name="telefone_auditor" required><br><br>
+                <label for="especialidade_auditor">Especialidade do Auditor:</label>
+                <input type="text" id="especialidade_auditor" name="especialidade_auditor" required><br><br>
+                <label for="crm_auditor">CRM do Auditor:</label>
+                <input type="text" id="crm_auditor" name="crm_auditor" required><br><br>
+                <input type="submit" name="add_auditor" class="login-btn" value="Adicionar Auditor">
+            </form>
+        </div>
     </div>
-
+    <div class="FormsBox">
+    <form action="" method="post">
+        <h2>Adicionar Enfermeira</h2>
+        <label for="username_enfermeira">Nome de usuário da Enfermeira:</label>
+        <input type="text" id="username_enfermeira" name="username_enfermeira" required><br><br>
+        <label for="password_enfermeira">Senha da Enfermeira:</label>
+        <input type="password" id="password_enfermeira" name="password_enfermeira" required><br><br>
+        <label for="confirm_password_enfermeira">Confirme a Senha:</label>
+        <input type="password" id="confirm_password_enfermeira" name="confirm_password_enfermeira" required><br><br>
+        <label for="nome_enfermeira">Nome da Enfermeira:</label>
+        <input type="text" id="nome_enfermeira" name="nome_enfermeira" required><br><br>
+        <label for="email_enfermeira">Email da Enfermeira:</label>
+        <input type="email" id="email_enfermeira" name="email_enfermeira" required><br><br>
+        <label for="telefone_enfermeira">Telefone da Enfermeira:</label>
+        <input type="tel" id="telefone_enfermeira" name="telefone_enfermeira" required><br><br>
+        <input type="submit" name="add_enfermeira" class="login-btn" value="Adicionar Enfermeira">
+    </form>
+</div>
+<div class="FormsBox">
+    <form action="" method="post">
+        <h2>Adicionar farmaceutico</h2>
+        <label for="username_farmaceutico">Nome de usuário da farmaceutico:</label>
+        <input type="text" id="username_farmaceutico" name="username_farmaceutico" required><br><br>
+        <label for="password_farmaceutico">Senha da farmaceutico:</label>
+        <input type="password" id="password_farmaceutico" name="password_farmaceutico" required><br><br>
+        <label for="confirm_password_farmaceutico">Confirme a Senha:</label>
+        <input type="password" id="confirm_password_farmaceutico" name="confirm_password_farmaceutico" required><br><br>
+        <label for="nome_farmaceutico">Nome da farmaceutico:</label>
+        <input type="text" id="nome_farmaceutico" name="nome_farmaceutico" required><br><br>
+        <label for="email_farmaceutico">Email da farmaceutico:</label>
+        <input type="email" id="email_farmaceutico" name="email_farmaceutico" required><br><br>
+        <label for="telefone_farmaceutico">Telefone da farmaceutico:</label>
+        <input type="tel" id="telefone_farmaceutico" name="telefone_farmaceutico" required><br><br>
+        <input type="submit" name="add_farmaceutico" class="login-btn" value="Adicionar farmaceutico">
+    </form>
+</div>
+    <div class="back-button">
+        <a href="index.php" class="login-btn">Voltar à Página de Login</a>
+    </div>
     <script>
-        // Função para verificar se as senhas são iguais
-        document.getElementById('confirm_password').addEventListener('input', function() {
-            var password = document.getElementById('password').value;
-            var confirmPassword = this.value;
-            var mensagem = document.getElementById('senha_mensagem');
-
-            if (password === confirmPassword) {
-                mensagem.textContent = "As senhas são iguais.";
-                mensagem.style.color = "green"; // Mensagem em verde
-            } else {
-                mensagem.textContent = "As senhas não correspondem.";
-                mensagem.style.color = "red"; // Mensagem em vermelho
-            }
-        });
-
-        // Mostrar/ocultar campos com base no tipo de usuário selecionado
-        document.getElementById('tipo_usuario').addEventListener('change', function() {
-    var tipo = this.value;
-    var userDetails = document.getElementById('userDetails');
-    userDetails.style.display = 'block'; // Exibe os detalhes do usuário
-
-    // Oculta todos os detalhes de tipo de usuário
-    document.getElementById('medicoDetails').style.display = 'none';
-    document.getElementById('auditorDetails').style.display = 'none';
-    document.getElementById('enfermeiraDetails').style.display = 'none';
-    document.getElementById('farmaceuticoDetails').style.display = 'none'; // Oculta farmacêutico
-
-    // Exibe os campos correspondentes ao tipo de usuário selecionado
-    if (tipo === 'medico') {
-        document.getElementById('medicoDetails').style.display = 'block';
-    } else if (tipo === 'auditor') {
-        document.getElementById('auditorDetails').style.display = 'block';
-    } else if (tipo === 'enfermeira') {
-        document.getElementById('enfermeiraDetails').style.display = 'block';
-    } else if (tipo === 'farmaceutico') {
-        document.getElementById('farmaceuticoDetails').style.display = 'block'; // Exibe farmacêutico
-    }
-});
-    </script>
+    // Função para verificar se as senhas são iguais para Médico
+    document.getElementById('confirm_password_medico').addEventListener('input', function() {
+        var password = document.getElementById('password_medico').value;
+        var confirmPassword = this.value;
+        var mensagem = document.getElementById('senha_mensagem_medico');
+        if (password === confirmPassword) {
+            mensagem.textContent = "As senhas são iguais.";
+            mensagem.style.color = "green"; 
+        } else {
+            mensagem.textContent = "As senhas não correspondem.";
+            mensagem.style.color = "red"; 
+        }
+    });
+    // Função para verificar se as senhas são iguais para Auditor
+    document.getElementById('confirm_password_auditor').addEventListener('input', function() {
+        var password = document.getElementById('password_auditor').value;
+        var confirmPassword = this.value;
+        var mensagem = document.getElementById('senha_mensagem_auditor');
+        if (password === confirmPassword) {
+            mensagem.textContent = "As senhas são iguais.";
+            mensagem.style.color = "green"; 
+        } else {
+            mensagem.textContent = "As senhas não correspondem.";
+            mensagem.style.color = "red"; 
+        }
+    });
+    // Função para verificar se as senhas são iguais para Enfermeira
+    document.getElementById('confirm_password_enfermeira').addEventListener('input', function() {
+        var password = document.getElementById('password_enfermeira').value;
+        var confirmPassword = this.value;
+        var mensagem = document.getElementById('senha_mensagem_enfermeira');
+        if (password === confirmPassword) {
+            mensagem.textContent = "As senhas são iguais.";
+            mensagem.style.color = "green"; 
+        } else {
+            mensagem.textContent = "As senhas não correspondem.";
+            mensagem.style.color = "red"; 
+        }
+    });
+    // Função para verificar se as senhas são iguais para farmaceutico
+    document.getElementById('confirm_password_farmaceutico').addEventListener('input', function() {
+        var password = document.getElementById('password_farmaceutico').value;
+        var confirmPassword = this.value;
+        var mensagem = document.getElementById('senha_mensagem_farmaceutico');
+        if (password === confirmPassword) {
+            mensagem.textContent = "As senhas são iguais.";
+            mensagem.style.color = "green"; 
+        } else {
+            mensagem.textContent = "As senhas não correspondem.";
+            mensagem.style.color = "red"; 
+        }
+    });
+</script>
 </body>
 </html>

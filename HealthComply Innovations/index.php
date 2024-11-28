@@ -34,12 +34,30 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["username"]) && isset($
     // Verificar login
     $usuario = verifyLogin($conn, $username, $password);
 
+    // Verifique se o login foi bem-sucedido
     if ($usuario) {
         // Iniciar sessão
         session_start();
         $_SESSION["username"] = $usuario["username"];
         $_SESSION["tipo_usuario"] = $usuario["tipo_usuario"];
         $_SESSION["id_usuario"] = $usuario["id_usuario"]; // Armazena o ID do usuário
+        
+        // Obter o CRM e o nome do médico, se for um médico
+        if ($usuario["tipo_usuario"] == "medico") {
+            $query = "SELECT m.nome, m.crm FROM medicos m JOIN usuarios u ON m.id_usuario = u.id_usuario WHERE u.id_usuario = ?";
+            $stmt = $conn->prepare($query);
+            $stmt->bind_param("i", $usuario["id_usuario"]);
+            $stmt->execute();
+            $stmt->bind_result($nome_medico, $crm_medico);
+            
+            if ($stmt->fetch()) {
+                $_SESSION["nome_medico"] = $nome_medico; // Armazena o nome do médico na sessão
+                $_SESSION["crm_medico"] = $crm_medico;
+                $_SESSION["id_medico"] = $id_medico;   
+            } else {
+                echo "Erro ao buscar dados do médico: " . $stmt->error; // Mensagem de erro
+            }
+        }
 
         // Redirecionar para a área correspondente
         if ($usuario["tipo_usuario"] == "medico") {
@@ -54,9 +72,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["username"]) && isset($
         } elseif ($usuario["tipo_usuario"] == "enfermeira") {
             header("Location: enfermeira.php", true, 302);
             exit;
+        } elseif ($usuario["tipo_usuario"] == "farmaceutico") {
+            header("Location: crud_farmacia.php", true, 302);
+            exit;
         }
     } else {
-        $erro = "Usuário ou senha inválidos";
+        $erro = "Usuário ou senha inválidos"; // Mensagem de erro
     }
 }
 ?>

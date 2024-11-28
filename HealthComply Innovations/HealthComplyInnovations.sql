@@ -20,7 +20,7 @@ CREATE TABLE usuarios (
   id_usuario INT PRIMARY KEY AUTO_INCREMENT,
   username VARCHAR(50) NOT NULL,
   password VARCHAR(255) NOT NULL,
-  tipo_usuario ENUM('admin', 'medico', 'auditor', 'enfermeira') NOT NULL,
+  tipo_usuario ENUM('admin', 'medico', 'auditor', 'enfermeira', 'farmaceutico') NOT NULL,
   nome VARCHAR(100) NOT NULL,
   email VARCHAR(100) NOT NULL,
   telefone VARCHAR(20) NOT NULL,
@@ -28,6 +28,7 @@ CREATE TABLE usuarios (
   crm VARCHAR(20) NULL,  -- apenas para médicos
   cargo VARCHAR(50) NULL,  -- apenas para secretários
   coren VARCHAR(20) NULL,  -- apenas para enfermeiras
+  crf VARCHAR(20) NULL, -- apenas para farmaceuticos
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
@@ -93,16 +94,14 @@ CREATE TABLE procedimentos_medicamentos (
   FOREIGN KEY (id_medicamento) REFERENCES medicamentos(id_medicamento)
 );
 
- -- (Tabela Guia)
-CREATE TABLE guia(
-  idGuia int not null auto_increment primary key,
-  dt_atendimento datetime not null,
-  id_medico int,
-  id_procedimento int,
-  id_medicamento int,
-  FOREIGN KEY (id_medico) REFERENCES medicos(id_medico),
-  FOREIGN KEY (id_procedimento) REFERENCES procedimentos(id_procedimento),
-  FOREIGN KEY (id_medicamento) REFERENCES medicamentos(id_medicamento)
+-- (Tabela para registrar os medicamentos que foram ou não ultilizados)
+CREATE TABLE registro_medicamentos (
+    id_registro INT AUTO_INCREMENT PRIMARY KEY,
+    id_consulta INT NOT NULL,
+    remedio_dado TINYINT(1) DEFAULT 0,
+    remedio_devolvido TINYINT(1) DEFAULT 0,
+    data_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (id_consulta) REFERENCES consulta(id_consulta)
 );
 
  -- (Tabela Consulta)
@@ -110,7 +109,7 @@ CREATE TABLE consulta (
   id_consulta INT AUTO_INCREMENT,
   id_paciente INT NOT NULL,
   id_medico INT NOT NULL,
-  crm INT NOT NULL,
+  crm INT NOT NULL,	
   cpf_paciente VARCHAR(14),
   id_procedimento INT NOT NULL,
   dt_consulta DATE NOT NULL,
@@ -122,76 +121,15 @@ CREATE TABLE consulta (
 
 	-- (Tabela para armazenar os medicamentos usados na consulta)
 CREATE TABLE consulta_medicamentos (
+    id INT AUTO_INCREMENT PRIMARY KEY,
     id_consulta INT NOT NULL,
     id_medicamento INT NOT NULL,
-    PRIMARY KEY (id_consulta, id_medicamento),
-    FOREIGN KEY (id_consulta) REFERENCES consulta(id_consulta) ON DELETE CASCADE,
-    FOREIGN KEY (id_medicamento) REFERENCES medicamentos(id_medicamento) ON DELETE CASCADE
+    quantidade INT NOT NULL,
+    FOREIGN KEY (id_consulta) REFERENCES consulta(id_consulta),
+    FOREIGN KEY (id_medicamento) REFERENCES medicamentos(id_medicamento)
 );
 
-
-DELIMITER //
-CREATE PROCEDURE sp_verificar_cobertura_procedimento(
-    IN p_id_procedimento INT,
-    IN p_id_plano INT,
-    OUT p_eh_coberto BOOLEAN
-  )
-  BEGIN
-    DECLARE v_cobertura_consultas BOOLEAN;
-    DECLARE v_cobertura_medicamentos BOOLEAN;
-    DECLARE v_limite_consultas INT;
-    DECLARE v_limite_medicamentos INT;
-  
-    -- Recuperar informações de cobertura da tabela plano_de_saude
-    SELECT 
-      cobertura_consultas, 
-      cobertura_medicamentos, 
-      limite_consultas, 
-      limite_medicamentos
-    INTO 
-      v_cobertura_consultas, 
-      v_cobertura_medicamentos, 
-      v_limite_consultas, 
-      v_limite_medicamentos
-    FROM 
-      plano_de_saude
-    WHERE 
-      idPlano = p_id_plano;
-  
-    -- Verificar se o procedimento é uma consulta
-    IF (SELECT tipo FROM procedimentos WHERE idProcedimento = p_id_procedimento) = 'Consulta' THEN
-      -- Verificar se o plano cobre consultas
-      IF v_cobertura_consultas = 1 THEN
-        -- Verificar se o limite de consultas foi alcançado
-        IF v_limite_consultas = 0 OR (SELECT COUNT(*) FROM procedimentos_medicamentos WHERE idProcedimento = p_id_procedimento) < v_limite_consultas THEN
-          SET p_eh_coberto = TRUE;
-        ELSE
-          SET p_eh_coberto = FALSE;
-        END IF;
-      ELSE
-        SET p_eh_coberto = FALSE;
-      END IF;
-    ELSE
-      -- Verificar se o procedimento usa medicamentos
-      IF (SELECT COUNT(*) FROM procedimentos_medicamentos WHERE idProcedimento = p_id_procedimento) > 0 THEN
-        -- Verificar se o plano cobre medicamentos
-        IF v_cobertura_medicamentos = 1 THEN
-          -- Verificar se o limite de medicamentos foi alcançado
-          IF v_limite_medicamentos = 0 OR (SELECT SUM(quantidade) FROM procedimentos_medicamentos WHERE idProcedimento = p_id_procedimento) < v_limite_medicamentos THEN
-            SET p_eh_coberto = TRUE;
-          ELSE
-            SET p_eh_coberto = FALSE;
-          END IF;
-        ELSE
-          SET p_eh_coberto =FALSE;
-      END IF;
-    END IF;
-    END IF;
-  END //
-DELIMITER ;
-
-
-INSERT INTO medicamentos (nome, descricao, preco, tipo, forma_administracao)
+INSERT INTO medicamentos (nome, descricao, preco, tipo, forma_administracao, quantidade)
 VALUES
   ('Paracetamol', 'Analgésico e antipirético', 10.99, 'Remédio', 'Oral',20),
   ('Ibuprofeno', 'Anti-inflamatório não esteroide', 15.99, 'Remédio', 'Oral',20),
@@ -241,6 +179,7 @@ VALUES
   select * from medicamentos;
   select * from medicos;
   select * from usuarios;
-  select * from procedimentos_medicamentos;
+  select * from consulta_medicamentos;
   select * from pacientes;
   select * from consulta;
+  

@@ -1,102 +1,105 @@
 <?php
-session_start(); // Inicia a sessão
-
-// Verifique se o usuário está logado e se é um médico
-if (!isset($_SESSION["tipo_usuario"]) || $_SESSION["tipo_usuario"] !== "medico") {
-    header("Location: index.php"); // Redireciona para a página de login se não for médico
-    exit;
-}
-
-// Obter o ID e o nome do médico da sessão
-$crm = $_SESSION["crm"];
-$nome_medico = $_SESSION["nome_medico"]; // Nome do médico logado
-
 // Conexão com o banco de dados
 $conn = new mysqli("localhost", "root", "", "db_HealthComply_Innovations_User");
 
-// Verificar conexão
+// Verificar se a conexão foi estabelecida
 if ($conn->connect_error) {
-    die("Erro de conexão: " . $conn->connect_error);
+    die("Connection failed: " . $conn->connect_error);
+}
+session_start(); // Inicia a sessão
+
+// Verifique se o usuário está logado e se é um médico
+if (!isset($_SESSION["id_usuario"]) || $_SESSION["tipo_usuario"] != "medico") {
+    echo "Erro: Você não está logado como médico.";
+    exit;
 }
 
-// Buscar planos de saúde
-$query_planos = "SELECT * FROM plano_de_saude";
-$result_planos = $conn->query($query_planos);
+// Adicionar nova consulta
+if (isset($_POST['add_consulta'])) {
+    $crm = $_POST['crm'];
+    $nome_paciente = $_POST['nome_paciente'];
+    $cpf_paciente = $_POST['cpf_paciente'];
+    $data_nascimento = $_POST['data_nascimento'];
+    $plano_saude = $_POST['plano_saude'];
+    $id_procedimento = $_POST['id_procedimento']; // ID do procedimento
+    $dt_consulta = $_POST['dt_consulta'];
+    $medicamentos = $_POST['medicamentos']; // IDs dos medicamentos
+    $quantidades = $_POST['quantidades']; // Quantidades dos medicamentos
 
-// Buscar procedimentos
+    // Verificar se o paciente já existe
+    $query = "SELECT * FROM pacientes WHERE cpf = ?";
+    $stmt = $conn->prepare($query);
+    $stmt->bind_param("s", $cpf_paciente);
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    if ($result->num_rows == 0) {
+        // Paciente não existe, criar novo paciente
+        $query = "INSERT INTO pacientes (nome, sobrenome, data_nascimento, cpf, plano_saude) VALUES (?, ?, ?, ?, ?)";
+        $stmt = $conn->prepare($query);
+        $sobrenome = ''; // Supondo que o sobrenome não seja necessário
+        $stmt->bind_param("sssss", $nome_paciente, $sobrenome, $data_nascimento, $cpf_paciente, $plano_saude);
+        if (!$stmt->execute()) {
+            echo "Erro ao inserir paciente: " . $stmt->error;
+            exit;
+        }
+        $id_paciente = $conn->insert_id; // Obter o ID do novo paciente
+    } else {
+        // Paciente já existe, obter o ID do paciente
+        $paciente = $result->fetch_assoc();
+        $id_paciente = $paciente['id_paciente'];
+    }
+
+    // Obter o ID do médico com base no CRM
+    $query = "SELECT id_medico FROM medicos WHERE crm = ?";
+    $stmt = $conn->prepare($query);
+    $stmt->bind_param("s", $crm);
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    if ($result->num_rows > 0) {
+        $medico = $result->fetch_assoc();
+        $id_medico = $medico['id_medico'];
+
+        // Inserir a consulta
+        $query = "INSERT INTO consulta (id_paciente, id_medico, crm, dt_consulta, id_procedimento) VALUES (?, ?, ?, ?, ?)";
+        $stmt = $conn->prepare($query);
+        $stmt->bind_param("iissi", $id_paciente, $id_medico, $crm, $dt_consulta, $id_procedimento);
+        if (!$stmt->execute()) {
+            echo "Erro ao inserir consulta: " . $stmt->error;
+            exit;
+        }
+        $id_consulta = $conn->insert_id; // Obter o ID da nova consulta
+
+        // Inserir medicamentos utilizados na consulta
+        foreach ($medicamentos as $index => $medicamento) {
+            $quantidade = $quantidades[$index]; // Obter a quantidade correspondente
+            $query = "INSERT INTO consulta_medicamentos (id_consulta, id_medicamento, quantidade) VALUES (?, ?, ?)";
+            $stmt = $conn->prepare($query);
+            $stmt->bind_param("iii", $id_consulta, $medicamento, $quantidade);
+            
+            if (!$stmt->execute()) {
+                echo "Erro ao inserir medicamento: " . $stmt->error; // Exibir erro
+            }
+        }
+
+        echo " Consulta registrada com sucesso!";
+    } else {
+        echo "Erro: Médico com CRM informado não encontrado.";
+    }
+}
+
+// Obter todos os procedimentos
 $query_procedimentos = "SELECT * FROM procedimentos";
 $result_procedimentos = $conn->query($query_procedimentos);
 
-// Verificar se o formulário foi enviado
-if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["acao"]) && $_POST["acao"] == "registrar_atendimento") {
+// Obter todos os planos de saúde
+$query_planos = "SELECT nome_plano FROM plano_de_saude"; // ajuste o nome da tabela e coluna conforme necessário
+$result_planos = $conn->query($query_planos);
 
-    // Verificar se os campos estão preenchidos
-    $cpf_paciente = $_POST["cpf_paciente"];
-    $nome = $_POST["nome"];
-    $data_nascimento = $_POST["data_nascimento"];
-    $plano_saude = $_POST["plano_saude"];
-    $procedimento = $_POST["procedimento"];
-    $data_procedimento = $_POST["data_procedimento"]; // Adicionado para capturar a data do procedimento
-
-    if (empty($cpf_paciente) || empty($nome) || empty($data_nascimento) || empty($plano_saude) || empty($procedimento) || empty($data_procedimento)) {
-        echo "Erro: Alguns campos obrigatórios estão faltando!";
-        exit;
-    }
-
-   
-
-    // Buscar paciente existente pelo CPF
-    $sql_paciente = "SELECT * FROM pacientes WHERE cpf = ?";
-    $stmt_paciente = $conn->prepare($sql_paciente);
-    $stmt_paciente->bind_param("s", $cpf_paciente);
-    $stmt_paciente->execute();
-    $result = $stmt_paciente->get_result();
-
-    if ($result->num_rows > 0) {
-        $row = $result->fetch_assoc();
-        $id_paciente = $row["id_paciente"];
-    } else {
-        // Inserir novo paciente
-        $sql_paciente = "INSERT INTO pacientes (nome, data_nascimento, plano_saude, cpf) VALUES (?, ?, ?, ?)";
-        $stmt_paciente = $conn->prepare($sql_paciente);
-        $stmt_paciente->bind_param("ssss", $nome, $data_nascimento, $plano_saude, $cpf_paciente);
-        $stmt_paciente->execute();
-        $id_paciente = $stmt_paciente->insert_id;
-    }
-
-    // Verificar se o médico existe
-    $sql_verifica_medico = "SELECT * FROM medicos WHERE crm = ?";
-    $stmt_verifica_medico = $conn->prepare($sql_verifica_medico);
-    $stmt_verifica_medico->bind_param("i", $crm);
-    $stmt_verifica_medico->execute();
-    $result_medico = $stmt_verifica_medico->get_result();
-
-    if ($result_medico->num_rows == 0) {
-        echo "Erro: O ID do médico não existe.";
-        exit;
-    }
-
-     // Captura de crm, cpf_paciente e dt_consulta
-     $dt_consulta = $_POST['dt_consulta'];
-
-    // Preparar a consulta SQL para inserir a consulta no banco de dados
-    $stmt = $conn->prepare("INSERT INTO consulta (crm, id_paciente, id_procedimento, dt_consulta) VALUES (?, ?, ?, ?)");
-    $stmt->bind_param("iiis", $crm, $id_paciente, $procedimento, $dt_consulta);
-
-    // Execute a consulta
-    if (!$stmt->execute()) {
-        echo "Erro na inserção da consulta: " . $stmt->error;
-    } else {
-        // Redirecionar para o dashboard do médico
-        header("Location: dashboard _medico.php", true, 302);
-        exit;
-    }
-
-    $stmt->close();
-}
-
-// Fechar conexão com o banco de dados
-$conn->close();
+// Obter todos os medicamentos
+$query_medicamentos = "SELECT * FROM medicamentos";
+$result_medicamentos = $conn->query($query_medicamentos);
 ?>
 
 <!DOCTYPE html>
@@ -104,59 +107,54 @@ $conn->close();
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="Crud-Medico.css">
-    <title>Consulta</title>
+    <link rel="stylesheet" href="admin.css">
+    <title>Registrar Consulta Médica</title>
 </head>
 <body>
-    <div class="FormsBox">
-        <h1>Bem-vindo, <?php echo $nome_medico; ?></h1>
-        <h1>Consulta</h1>
-        <form action="" method="post">
-            <div class="input-field">
-                <label for="crm"> CRM Médico:</label>
-                <input type="text" id="crm" name="crm" value="<?php echo htmlspecialchars($crm); ?>" readonly>
-            </div>
-            <div class="input-field">
-                <label for="cpf_paciente">CPF do Paciente:</label>
-                <input type="text" id="cpf_paciente" name="cpf_paciente" required>
-            </div>
-            <div class="input-field">
-                <label for="nome">Nome do Paciente:</label>
-                <input type="text" id="nome" name="nome" required>
-            </div>
-            <div class="input-field">
-                <label for="data_nascimento">Data de Nascimento:</label>
-                <input type="date" id="data_nascimento" name="data_nascimento" required>
-            </div>
-            <div class="input-field">
-                <label for="plano_saude">Plano de Saúde:</label>
-                <select id="plano_saude" name="plano_saude" required>
-                    <option value="">Selecione um plano de saúde</option>
-                    <?php while ($row = $result_planos->fetch_assoc()): ?>
-                        <option value="<?php echo $row['idPlano']; ?>"><?php echo $row['nome_plano']; ?></option>
-                    <?php endwhile; ?>
-                </select>
-            </div>
-            <div class="input-field">
-                <label for="procedimento">Procedimento:</label>
-                <select id="procedimento" name="procedimento" required>
-                    <option value="">Selecione um procedimento</option>
-                    <?php while ($row = $result_procedimentos->fetch_assoc()): ?>
-                        <option value="<?php echo $row['id_procedimento']; ?>"><?php echo $row['nome_procedimento']; ?></option>
-                    <?php endwhile; ?>
-                </select>
-            </div>
-            <div class="input-field">
-                <label for="data_procedimento">Data da Consulta:</label>
-                <input type="date" id="data_procedimento" name="data_procedimento" required>
-            </div>
-            <div class="input-field">
-                <label for="medicamentos">Medicamentos (separados por vírgula):</label>
-                <input type="text" id="medicamentos" name="medicamentos">
-            </div>
-            <input type="hidden" name="acao" value="registrar_atendimento">
-            <input type="submit" value="Registrar Atendimento" class="login-btn">
-        </form>
-    </div>
+<h1>Registrar Consulta Médica</h1>
+
+<form action="" method="post">
+    <label for="crm">CRM:</label>
+    <input type="text" id="crm" name="crm" required><br><br>
+
+    <label for="nome_paciente">Nome do Paciente:</label>
+    <input type="text" id="nome_paciente" name="nome_paciente" required><br><br>
+
+    <label for="cpf_paciente">CPF do Paciente:</label>
+    <input type="text" id="cpf_paciente" name="cpf_paciente" required><br><br>
+
+    <label for="data_nascimento">Data de Nascimento:</label>
+    <input type="date" id="data_nascimento" name="data_nascimento" required><br><br>
+
+    <label for="plano_saude">Plano de Saúde:</label>
+    <select id="plano_saude" name="plano_saude" required>
+        <?php while ($row = $result_planos->fetch_assoc()): ?>
+            <option value="<?php echo $row['nome_plano']; ?>"><?php echo $row['nome_plano']; ?></option>
+        <?php endwhile; ?>
+    </select><br><br>
+
+    <label for="procedimento">Procedimento:</label>
+    <select id="procedimento" name="id_procedimento" required>
+        <?php while ($row = $result_procedimentos->fetch_assoc()): ?>
+            <option value="<?php echo $row['id_procedimento']; ?>"><?php echo $row['nome_procedimento']; ?></option>
+        <?php endwhile; ?>
+    </select><br><br>
+
+    <label for="dt_consulta">Data da Consulta:</label>
+    <input type="date" id="dt_consulta" name="dt_consulta" required><br><br>
+
+    <label for="medicamentos">Medicamentos:</label>
+    <select id="medicamentos" name="medicamentos[]" multiple required>
+        <?php while ($row = $result_medicamentos->fetch_assoc()): ?>
+            <option value="<?php echo $row['id_medicamento']; ?>"><?php echo $row['nome']; ?></option>
+        <?php endwhile; ?>
+    </select><br><br>
+
+    <label for="quantidades">Quantidades:</label>
+    <input type="text" id="quantidades" name="quantidades[]" placeholder="Ex: 2, 1" required><br><br>
+
+    <button type="submit" name="add_consulta">Registrar Consulta</button>
+</form>
+
 </body>
 </html>
