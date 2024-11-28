@@ -10,9 +10,9 @@ if (!isset($_SESSION["id_usuario"])) {
     echo "Erro: Você não está logado como administrador.";
     exit;
 } 
-// Obter o ID do usuário da sessão
+
 $id_usuario = $_SESSION["id_usuario"];
-// verificar se o usuário já existe
+
 function usuario_ja_existe($username, $conn) {
     $query = "SELECT * FROM usuarios WHERE username = ?";
     $stmt = $conn->prepare($query);
@@ -21,7 +21,7 @@ function usuario_ja_existe($username, $conn) {
     $result = $stmt->get_result();
     return $result->num_rows > 0;
 }
-// criar um novo usuário
+
 function criar_usuario($username, $password, $tipo_usuario, $nome, $email, $telefone, $conn) {
     if (usuario_ja_existe($username, $conn)) {
         return "Usuário já existe";
@@ -44,15 +44,15 @@ if (isset($_POST["add_medico"])) {
     $telefone_medico = $_POST["telefone_medico"] ?? '';
     $especialidade_medico = $_POST["especialidade_medico"];
     $crm_medico = $_POST["crm_medico"];
-    // Verificar se as senhas correspondem
+   
     if ($password_medico !== $confirm_password_medico) {
         echo "As senhas não correspondem.";
     } elseif (!empty($telefone_medico)) {
-        // Adicionar usuário à tabela usuarios
+        
         $id_usuario = criar_usuario($username_medico, $password_medico, $tipo_usuario_medico, $nome_medico, $email_medico, $telefone_medico, $conn);
         
         if (is_numeric($id_usuario)) {
-            // Adicionar médico à tabela medicos
+            
             $query = "INSERT INTO medicos (id_usuario, nome, especialidade, crm, email, telefone) VALUES (?, ?, ?, ?, ?, ?)";
             $stmt = $conn->prepare($query);
             $stmt->bind_param("isssss", $id_usuario, $nome_medico, $especialidade_medico, $crm_medico, $email_medico, $telefone_medico);
@@ -77,7 +77,7 @@ if (isset($_POST["add_auditor"])) {
     $telefone_auditor = $_POST["telefone_auditor"] ?? '';
     $especialidade_auditor = $_POST["especialidade_auditor"];
     $crm_auditor = $_POST["crm_auditor"];
-    // Verificar se as senhas correspondem
+    
     if ($password_auditor !== $confirm_password_auditor) {
         echo "As senhas não correspondem.";
     } else {
@@ -94,17 +94,17 @@ if (isset($_POST["add_enfermeira"])) {
     $nome_enfermeira = $_POST["nome_enfermeira"];
     $email_enfermeira = $_POST["email_enfermeira"];
     $telefone_enfermeira = $_POST["telefone_enfermeira"];
-    // Verificar se as senhas correspondem
+   
     if ($password_enfermeira !== $confirm_password_enfermeira) {
         echo "As senhas não correspondem.";
     } else {
-        // Adicionar usuário à tabela usuarios
+        
         $id_usuario = criar_usuario($username_enfermeira, $password_enfermeira, $tipo_usuario_enfermeira, $nome_enfermeira, $email_enfermeira, $telefone_enfermeira, $conn);
         
         if (is_numeric($id_usuario)) {
             echo "Enfermeira adicionada com sucesso!";
         } else {
-            echo $id_usuario; // Mensagem de erro se o usuário já existe
+            echo $id_usuario; 
         }
     }
 }
@@ -118,17 +118,17 @@ if (isset($_POST["add_farmaceutico"])) {
     $nome_farmaceutico = $_POST["nome_farmaceutico"];
     $email_farmaceutico = $_POST["email_farmaceutico"];
     $telefone_farmaceutico = $_POST["telefone_farmaceutico"];
-    // Verificar se as senhas correspondem
+    
     if ($password_farmaceutico !== $confirm_password_farmaceutico) {
         echo "As senhas não correspondem.";
     } else {
-        // Adicionar usuário à tabela usuarios
+        
         $id_usuario = criar_usuario($username_farmaceutico, $password_farmaceutico, $tipo_usuario_farmaceutico, $nome_farmaceutico, $email_farmaceutico, $telefone_farmaceutico, $conn);
         
         if (is_numeric($id_usuario)) {
             echo "farmaceutico adicionada com sucesso!";
         } else {
-            echo $id_usuario; // Mensagem de erro se o usuário já existe
+            echo $id_usuario; 
         }
     }
 }
