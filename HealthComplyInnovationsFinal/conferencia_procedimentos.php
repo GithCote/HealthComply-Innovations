@@ -1,25 +1,23 @@
 <?php
-// Conexão com o banco de dados
 $conn = new mysqli("localhost", "root", "", "db_HealthComply_Innovations_User");
 
-// Verificar se a conexão foi estabelecida
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
-session_start(); // Inicia a sessão
+session_start(); 
 
-// Verifique se o usuário está logado e se é um auditor
+// Verifique se o usuário e um auditor
 if (!isset($_SESSION["id_usuario"]) || $_SESSION["tipo_usuario"] != "auditor") {
     echo "Erro: Você não está logado como auditor.";
     exit;
 }
 
-// Variáveis para armazenar resultados da busca
+// armazenar resultados da busca
 $consultas_corretas = [];
 $consultas_erradas = [];
 $mensagem = '';
 
-// Processar a busca
+
 $query = "SELECT c.id_consulta, p.nome AS nome_paciente, m.crm, pr.nome_procedimento, 
                  rm.remedio_dado, rm.remedio_saida, rm.remedio_devolvido, rm.remedio_volta
           FROM consulta c 
@@ -31,15 +29,15 @@ $query = "SELECT c.id_consulta, p.nome AS nome_paciente, m.crm, pr.nome_procedim
 $result = $conn->query($query);
 
 while ($row = $result->fetch_assoc()) {
-    // Verificar se há discrepâncias
+    // verificar se existe alguma diferença entre os dados da enfermeira e do farmaceutico
     if (($row['remedio_dado'] - $row['remedio_saida']) != 0 || ($row['remedio_devolvido'] - $row['remedio_volta']) != 0) {
-        $consultas_erradas[] = $row; // Adiciona à lista de consultas erradas
+        $consultas_erradas[] = $row; 
     } else {
-        $consultas_corretas[] = $row; // Adiciona à lista de consultas corretas
+        $consultas_corretas[] = $row; 
     }
 }
 
-// Processar a correção dos dados
+
 if (isset($_POST['corrigir'])) {
     $id_consulta = $_POST['id_consulta'];
     $remedio_dado = $_POST['remedio_dado'];
@@ -47,7 +45,7 @@ if (isset($_POST['corrigir'])) {
     $remedio_devolvido = $_POST['remedio_devolvido'];
     $remedio_volta = $_POST['remedio_volta'];
 
-    // Inserir na tabela de consultas verificadas
+    
     $query = "INSERT INTO consultas_verificadas (id_consulta, remedio_dado, remedio_saida, 
                                                   remedio_devolvido, remedio_volta) 
               VALUES (?, ?, ?, ?, ?)";
@@ -55,12 +53,12 @@ if (isset($_POST['corrigir'])) {
     $stmt->bind_param("iiiii", $id_consulta, $remedio_dado, $remedio_saida, $remedio_devolvido, $remedio_volta);
     
     if ($stmt->execute()) {
-        // Remover a consulta da lista de erradas e adicionar à lista de corretas
+        
         foreach ($consultas_erradas as $key => $consulta) {
             if ($consulta['id_consulta'] == $id_consulta) {
-                // Adiciona à lista de corretas
+               
                 $consultas_corretas[] = $consulta;
-                // Remove da lista de erradas
+                
                 unset($consultas_erradas[$key]);
                 break;
             }
@@ -71,6 +69,8 @@ if (isset($_POST['corrigir'])) {
     }
 }
 ?>
+
+//==========================================Aqui acaba a parte logica toma cuidado com as partes de php dentro do html=============================================================================================================
 
 <!DOCTYPE html>
 <html lang="pt-BR">
