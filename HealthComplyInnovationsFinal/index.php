@@ -1,5 +1,5 @@
 <?php
-// Conexão com o banco de dados
+
 $servername = "localhost";
 $username = "root";
 $password = "";
@@ -7,12 +7,12 @@ $dbname = "db_HealthComply_Innovations_User";
 
 $conn = new mysqli($servername, $username, $password, $dbname);
 
-// Verificar conexão
+
 if ($conn->connect_error) {
     die("Erro de conexão: " . $conn->connect_error);
 }
 
-// Função para verificar login
+//verificar o login (não estava funcionando e do nada funcionou)
 function verifyLogin($conn, $username, $password) {
     $stmt = $conn->prepare("SELECT * FROM usuarios WHERE username = ? AND password = ?");
     $stmt->bind_param("ss", $username, $password);
@@ -20,29 +20,29 @@ function verifyLogin($conn, $username, $password) {
     $result = $stmt->get_result();
 
     if ($result->num_rows > 0) {
-        return $result->fetch_assoc(); // Retorna todos os dados do usuário
+        return $result->fetch_assoc(); 
     } else {
         return false;
     }
 }
 
-// Verificar se o formulário de login foi submetido
+
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["username"]) && isset($_POST["password"])) {
     $username = $_POST["username"];
     $password = $_POST["password"];
 
-    // Verificar login
+    
     $usuario = verifyLogin($conn, $username, $password);
 
-    // Verifique se o login foi bem-sucedido
+    
     if ($usuario) {
-        // Iniciar sessão
+       
         session_start();
         $_SESSION["username"] = $usuario["username"];
         $_SESSION["tipo_usuario"] = $usuario["tipo_usuario"];
-        $_SESSION["id_usuario"] = $usuario["id_usuario"]; // Armazena o ID do usuário
+        $_SESSION["id_usuario"] = $usuario["id_usuario"]; 
         
-        // Obter o CRM e o nome do médico, se for um médico
+        // Buscar o CRM e o nome do médico, se for um médico
         if ($usuario["tipo_usuario"] == "medico") {
             $query = "SELECT m.nome, m.crm FROM medicos m JOIN usuarios u ON m.id_usuario = u.id_usuario WHERE u.id_usuario = ?";
             $stmt = $conn->prepare($query);
@@ -51,15 +51,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["username"]) && isset($
             $stmt->bind_result($nome_medico, $crm_medico);
             
             if ($stmt->fetch()) {
-                $_SESSION["nome_medico"] = $nome_medico; // Armazena o nome do médico na sessão
+                $_SESSION["nome_medico"] = $nome_medico; 
                 $_SESSION["crm_medico"] = $crm_medico;
                 $_SESSION["id_medico"] = $id_medico;   
             } else {
-                echo "Erro ao buscar dados do médico: " . $stmt->error; // Mensagem de erro
+                echo "Erro ao buscar dados do médico: " . $stmt->error; 
             }
         }
 
-        // Redirecionar para a área correspondente
+        // Cada um pro seu quadrado
         if ($usuario["tipo_usuario"] == "medico") {
             header("Location: crud_medico.php", true, 302);
             exit;
@@ -77,7 +77,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["username"]) && isset($
             exit;
         }
     } else {
-        $erro = "Usuário ou senha inválidos"; // Mensagem de erro
+        $erro = "Usuário ou senha inválidos"; 
     }
 }
 // -------------------------------------------------------------------------HEiTOR Aqui acabou a parte logica do codigo ----------------------------------------------------------------------------------------------------------------------------------------------------
