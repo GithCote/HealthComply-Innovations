@@ -10,9 +10,7 @@ session_start(); // Inicia a sessão
 if (!isset($_SESSION["id_usuario"])) {
     echo "Erro: Você não está logado como administrador.";
     exit;
-}
-// Verifique se o ID do administrador está definido
-$admin_id = isset($_SESSION["admin_id"]) ? $_SESSION["admin_id"] : 'ID não disponível';
+} 
 // Obter o ID do usuário da sessão
 $id_usuario = $_SESSION["id_usuario"];
 // Função para verificar se o usuário já existe
@@ -151,7 +149,6 @@ $conn->close();
 </head>
 <body>
 <h1>Bem-vindo à Área do Administrador</h1>
-<p>ID do Usuário Conectado: <?php echo htmlspecialchars($admin_id); ?></p>
     <h1>Adicionar Médico ou Auditor</h1>
     <div class="FormsBox-container">
         <div class="FormsBox">
@@ -239,7 +236,9 @@ $conn->close();
         <a href="index.php" class="login-btn">Voltar à Página de Login</a>
     </div>
     <script>
-    // Função para verificar se as senhas são iguais para Médico
+    //Verificar as senhas para Médico
+    //================================================================================================================================================================================================
+    document.getElementById('confirm_password_auditor').addEventListener('input', function() {
     document.getElementById('confirm_password_medico').addEventListener('input', function() {
         var password = document.getElementById('password_medico').value;
         var confirmPassword = this.value;
@@ -252,7 +251,8 @@ $conn->close();
             mensagem.style.color = "red"; 
         }
     });
-    // Função para verificar se as senhas são iguais para Auditor
+    //verificar as senhas para o Auditor
+    //====================================================================================================================================================================================================
     document.getElementById('confirm_password_auditor').addEventListener('input', function() {
         var password = document.getElementById('password_auditor').value;
         var confirmPassword = this.value;
@@ -265,7 +265,8 @@ $conn->close();
             mensagem.style.color = "red"; 
         }
     });
-    // Função para verificar se as senhas são iguais para Enfermeira
+    //Verificas as senhas para a Enfermeira
+    //=====================================================================================================================================================================================================
     document.getElementById('confirm_password_enfermeira').addEventListener('input', function() {
         var password = document.getElementById('password_enfermeira').value;
         var confirmPassword = this.value;
@@ -278,7 +279,8 @@ $conn->close();
             mensagem.style.color = "red"; 
         }
     });
-    // Função para verificar se as senhas são iguais para farmaceutico
+    //Verificar as senhas para o farmaceutico
+    //==============================================================================================================================================================================================
     document.getElementById('confirm_password_farmaceutico').addEventListener('input', function() {
         var password = document.getElementById('password_farmaceutico').value;
         var confirmPassword = this.value;
