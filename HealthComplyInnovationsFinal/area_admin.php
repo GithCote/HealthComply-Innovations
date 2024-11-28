@@ -1,11 +1,10 @@
 <?php
-// Conexão com o banco de dados
 $conn = new mysqli("localhost", "root", "", "db_HealthComply_Innovations_User");
-// Verificar se a conexão foi estabelecida
+
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
-session_start(); // Inicia a sessão
+session_start(); 
 // Verifique se o usuário está logado
 if (!isset($_SESSION["id_usuario"])) {
     echo "Erro: Você não está logado como administrador.";
@@ -13,7 +12,7 @@ if (!isset($_SESSION["id_usuario"])) {
 } 
 // Obter o ID do usuário da sessão
 $id_usuario = $_SESSION["id_usuario"];
-// Função para verificar se o usuário já existe
+// verificar se o usuário já existe
 function usuario_ja_existe($username, $conn) {
     $query = "SELECT * FROM usuarios WHERE username = ?";
     $stmt = $conn->prepare($query);
@@ -22,7 +21,7 @@ function usuario_ja_existe($username, $conn) {
     $result = $stmt->get_result();
     return $result->num_rows > 0;
 }
-// Função para criar um novo usuário
+// criar um novo usuário
 function criar_usuario($username, $password, $tipo_usuario, $nome, $email, $telefone, $conn) {
     if (usuario_ja_existe($username, $conn)) {
         return "Usuário já existe";
@@ -32,7 +31,7 @@ function criar_usuario($username, $password, $tipo_usuario, $nome, $email, $tele
     $stmt->bind_param("ssssss", $username, $password, $tipo_usuario, $nome, $email, $telefone);
     $stmt->execute();
     $stmt->close();
-    return $conn->insert_id; // Retorna o ID do usuário recém-criado
+    return $conn->insert_id; 
 }
 // Adicionar médico
 if (isset($_POST["add_medico"])) {
@@ -61,7 +60,7 @@ if (isset($_POST["add_medico"])) {
             $stmt->close();
             echo "Médico adicionado com sucesso!";
         } else {
-            echo $id_usuario; // Mensagem de erro se o usuário já existe
+            echo $id_usuario; 
         }
     } else {
         echo "Por favor, preencha o campo telefone.";
