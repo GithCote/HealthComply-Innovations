@@ -1,29 +1,29 @@
 <?php
-// Conexão com o banco de dados
+
 $conn = new mysqli("localhost", "root", "", "db_HealthComply_Innovations_User");
 
-// Verificar se a conexão foi estabelecida
+
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
-session_start(); // Inicia a sessão
+session_start(); 
 
-// Verifique se o usuário está logado e se é uma enfermeira
+
 if (!isset($_SESSION["id_usuario"]) || $_SESSION["tipo_usuario"] != "enfermeira") {
     echo "Erro: Você não está logado como enfermeira.";
     exit;
 }
 
-// Variáveis para armazenar resultados da busca
+
 $consultas = [];
 $mensagem = '';
 
-// Processar a busca
+
 if (isset($_POST['buscar'])) {
     $crm = $_POST['crm'] ?? '';
     $nome_paciente = $_POST['nome_paciente'] ?? '';
 
-    // Montar a consulta SQL
+   
     $query = "SELECT c.id_consulta, p.nome AS nome_paciente, m.crm, pr.nome_procedimento, 
                      cm.quantidade AS quantidade_receitada, 
                      rm.remedio_dado, rm.remedio_devolvido, med.nome AS nome_medicamento
@@ -47,13 +47,13 @@ if (isset($_POST['buscar'])) {
     }
 }
 
-// Processar a atualização do status do medicamento
+
 if (isset($_POST['atualizar'])) {
     $id_consulta = $_POST['id_consulta'];
-    $remedio_dado = $_POST['remedio_dado'] ?? 0; // Pega a quantidade dada
-    $remedio_devolvido = $_POST['remedio_devolvido'] ?? 0; // Pega a quantidade devolvida
+    $remedio_dado = $_POST['remedio_dado'] ?? 0; 
+    $remedio_devolvido = $_POST['remedio_devolvido'] ?? 0; 
 
-    // Inserir o registro na tabela registro_medicamentos
+    
     $query = "INSERT INTO registro_medicamentos (id_consulta, remedio_dado, remedio_devolvido) 
               VALUES (?, ?, ?)";
     $stmt = $conn->prepare($query);
@@ -67,6 +67,7 @@ if (isset($_POST['atualizar'])) {
 }
 ?>
 
+    //=======================================================Ja sabe ne aki começa o html toma cuidado================================================================================================================
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
