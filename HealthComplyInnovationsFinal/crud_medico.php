@@ -1,32 +1,32 @@
 <?php
-// Conexão com o banco de dados
+
 $conn = new mysqli("localhost", "root", "", "db_HealthComply_Innovations_User");
 
-// Verificar se a conexão foi estabelecida
+
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
-session_start(); // Inicia a sessão
+session_start(); 
 
-// Verifique se o usuário está logado e se é um médico
+// Verificar se e um médico
 if (!isset($_SESSION["id_usuario"]) || $_SESSION["tipo_usuario"] != "medico") {
     echo "Erro: Você não está logado como médico.";
     exit;
 }
 
-// Adicionar nova consulta
+// criação de consulta
 if (isset($_POST['add_consulta'])) {
     $crm = $_POST['crm'];
     $nome_paciente = $_POST['nome_paciente'];
     $cpf_paciente = $_POST['cpf_paciente'];
     $data_nascimento = $_POST['data_nascimento'];
     $plano_saude = $_POST['plano_saude'];
-    $id_procedimento = $_POST['id_procedimento']; // ID do procedimento
+    $id_procedimento = $_POST['id_procedimento']; 
     $dt_consulta = $_POST['dt_consulta'];
-    $medicamentos = $_POST['medicamentos']; // IDs dos medicamentos
-    $quantidades = $_POST['quantidades']; // Quantidades dos medicamentos
+    $medicamentos = $_POST['medicamentos']; 
+    $quantidades = $_POST['quantidades']; 
 
-    // Verificar se o paciente já existe
+    
     $query = "SELECT * FROM pacientes WHERE cpf = ?";
     $stmt = $conn->prepare($query);
     $stmt->bind_param("s", $cpf_paciente);
@@ -34,18 +34,18 @@ if (isset($_POST['add_consulta'])) {
     $result = $stmt->get_result();
 
     if ($result->num_rows == 0) {
-        // Paciente não existe, criar novo paciente
+        
         $query = "INSERT INTO pacientes (nome, sobrenome, data_nascimento, cpf, plano_saude) VALUES (?, ?, ?, ?, ?)";
         $stmt = $conn->prepare($query);
-        $sobrenome = ''; // Supondo que o sobrenome não seja necessário
+        $sobrenome = ''; 
         $stmt->bind_param("sssss", $nome_paciente, $sobrenome, $data_nascimento, $cpf_paciente, $plano_saude);
         if (!$stmt->execute()) {
             echo "Erro ao inserir paciente: " . $stmt->error;
             exit;
         }
-        $id_paciente = $conn->insert_id; // Obter o ID do novo paciente
+        $id_paciente = $conn->insert_id; 
     } else {
-        // Paciente já existe, obter o ID do paciente
+        
         $paciente = $result->fetch_assoc();
         $id_paciente = $paciente['id_paciente'];
     }
@@ -61,7 +61,7 @@ if (isset($_POST['add_consulta'])) {
         $medico = $result->fetch_assoc();
         $id_medico = $medico['id_medico'];
 
-        // Inserir a consulta
+      
         $query = "INSERT INTO consulta (id_paciente, id_medico, crm, dt_consulta, id_procedimento) VALUES (?, ?, ?, ?, ?)";
         $stmt = $conn->prepare($query);
         $stmt->bind_param("iissi", $id_paciente, $id_medico, $crm, $dt_consulta, $id_procedimento);
@@ -69,17 +69,17 @@ if (isset($_POST['add_consulta'])) {
             echo "Erro ao inserir consulta: " . $stmt->error;
             exit;
         }
-        $id_consulta = $conn->insert_id; // Obter o ID da nova consulta
+        $id_consulta = $conn->insert_id; 
 
-        // Inserir medicamentos utilizados na consulta
+       
         foreach ($medicamentos as $index => $medicamento) {
-            $quantidade = $quantidades[$index]; // Obter a quantidade correspondente
+            $quantidade = $quantidades[$index]; 
             $query = "INSERT INTO consulta_medicamentos (id_consulta, id_medicamento, quantidade) VALUES (?, ?, ?)";
             $stmt = $conn->prepare($query);
             $stmt->bind_param("iii", $id_consulta, $medicamento, $quantidade);
             
             if (!$stmt->execute()) {
-                echo "Erro ao inserir medicamento: " . $stmt->error; // Exibir erro
+                echo "Erro ao inserir medicamento: " . $stmt->error; 
             }
         }
 
@@ -89,19 +89,21 @@ if (isset($_POST['add_consulta'])) {
     }
 }
 
-// Obter todos os procedimentos
+//parte para exibir as informações nas opções de preenchimento
+
 $query_procedimentos = "SELECT * FROM procedimentos";
 $result_procedimentos = $conn->query($query_procedimentos);
 
-// Obter todos os planos de saúde
-$query_planos = "SELECT nome_plano FROM plano_de_saude"; // ajuste o nome da tabela e coluna conforme necessário
+
+$query_planos = "SELECT nome_plano FROM plano_de_saude"; 
 $result_planos = $conn->query($query_planos);
 
-// Obter todos os medicamentos
+
 $query_medicamentos = "SELECT * FROM medicamentos";
 $result_medicamentos = $conn->query($query_medicamentos);
 ?>
 
+==================================================================Aqui acaba toma cuidado com o php no meio do html=========================================================================================================
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
